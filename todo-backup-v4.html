@@ -1,0 +1,597 @@
+<!DOCTYPE html>  
+<html>    
+<head>
+
+<title>Todo App</title>  
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="manifest"href="manifest.json">
+
+<style>    /* 1. পুরো পেজ */
+  
+body {
+font-family: Arial, sans-serif;
+background: #f2f2f2;
+margin: 0;
+padding: 20px;
+text-align: center;
+}
+
+/* 2. App Heading */
+h2 {
+margin-bottom: 20px;
+}
+
+/* 3. Task Input */
+#taskInput {
+width: 70%;
+padding: 10px;
+font-size: 16px;
+border: 1px solid #ccc;
+border-radius: 5px;
+box-sizing: border-box;
+}
+
+/* 4. Input Focus */
+#taskInput:focus {
+outline: none;
+}
+
+/* 5. Add Button */
+#addBtn {
+padding: 10px 15px;
+font-size: 16px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+}
+
+/* 6. Count */
+#count {
+margin-top: 15px;
+font-size: 16px;
+font-weight: bold;
+}
+
+/* 7. Result Area */
+#result {
+max-width: 700px;
+margin: 20px auto;
+}
+
+/* 8. প্রতিটি Task Box */
+.taskBox {
+display: flex;
+flex-direction: row;
+align-items: center;
+flex-wrap: ;
+gap: 5px;
+
+margin: 15px 0;
+padding: 12px;
+
+background: white;
+border: 1px solid #ccc;
+border-radius: 8px;
+
+text-align: left;
+}
+
+/* 9. Task Text */
+.taskText {
+flex: 1;
+font-size: 17px;
+}
+
+/* 10. সব Button */
+button {
+padding: 7px 10px;
+font-size: 14px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+}
+
+/* 11. Delete Button */
+.deleteBtn {
+margin-left: 5px;
+}
+
+/* 12. Done / Undo Button */
+.doneBtn {
+margin-left: 5px;
+}
+/* 13. Completed Button */
+#completedBtn {
+padding: 10px 20px;
+background-color: green;
+color: white;
+border-radius: 5px;
+margin-left: 5px;
+}
+
+/* 14. Remaining Button */
+#remainingBtn {
+padding: 10px 20px;
+background-color: orange;
+color: white;
+border-radius: 5px;
+margin-left: 5px;
+}
+
+/* 13. Edit Button */
+.editBtn {
+margin-left: 5px;
+}
+
+/* 14. Completed Task */
+.completed {
+text-decoration: line-through;
+opacity: 0.6;
+}
+
+/* 15. Button Hover */
+button:hover {
+opacity: 0.8;
+}
+
+/* 16. Task Box Hover */
+.taskBox:hover {
+transform: scale(1.01);
+}
+
+/* 17. ছোট Animation */
+.taskBox {
+transition: 0.2s;
+}
+
+/* 18. Mobile Screen */
+@media (max-width: 600px) {
+
+body {
+padding: 15px;
+}
+
+#searchInput {
+  width: 100%;
+  margin-bottom: 10px;
+  display:block;
+}
+
+#taskInput {
+width: 100%;
+margin-bottom: 10px;
+}
+
+#addBtn {
+width: auto;
+}
+
+.taskBox {
+width: 100%;
+box-sizing: border-box;
+}
+
+.taskText {
+width: 100%;
+}
+
+button {
+margin-top: 5px;
+}
+
+#completedBtn,
+#remainingBtn {
+  padding: 8px 12px;
+  margin: 5px 2px;
+}
+
+}
+
+/* Priority এবং Sort Dropdown */
+#priorityInput,
+#sortInput {
+  padding: 8px;
+  margin: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 15px;
+  background: white;
+}
+
+#priorityInput {
+  font-weight: bold;
+}
+  #sortInput {
+  font-weight: bold;
+}
+
+#searchInput {
+  width: 70%;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+  
+</style>
+     
+<body>     
+<h1 style="text-align: center;color: green;font-size: 40px; font-weight: bold;margin-bottom: 30px;">Todo App</h1>
+  
+  <input id="searchInput" placeholder="Search task">
+  
+  <input id="taskInput" placeholder="Enter a task" style = "padding: 10px;border-radius: 5px;width: 250px;border: 1px solid gray;"> 
+  
+<select id="priorityInput">    
+  <option value="High">High</option>    
+  <option value="Medium">Medium</option>    
+  <option value="Low">Low</option>    
+</select>    <button id="addBtn" style="padding: 10px 20px;background-color: green;color: white;border-radius: 5px;">Add</button>
+
+<button id="clearBtn" style="padding:10px 20px;background-color: red;color: white;">Clear All</button>
+
+<button id="allBtn" style="padding: 10px 20px;background-color:blue ; color: white; ">All</button>
+
+<button id="completedBtn">Completed</button>
+
+<button id="remainingBtn">Remaining</button>
+
+<select id="sortInput">    
+  <option value="priority">Priority</option>    
+  <option value="newest">Newest</option>    
+  <option value="oldest">Oldest</option>    
+</select>      <p id="count"></p>      
+  <p id="result"></p>
+  
+  
+<script>    
+        
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];    
+    
+for (let i = 0; i < tasks.length; i++) {    
+     
+  if (tasks[i].priority === undefined) {    
+    tasks[i].priority = "Medium";    
+  } 
+  
+
+if (tasks[i].date === undefined) {
+  tasks[i].date = new Date().toISOString();
+}
+
+if (tasks[i].date.includes("/")) {
+  let parts = tasks[i].date.split(/[\/, :]+/);
+
+  let day = parts[0];
+  let month = parts[1];
+  let year = parts[2];
+  let hour = parts[3] || "00";
+  let minute = parts[4] || "00";
+  let second = parts[5] || "00";
+
+  tasks[i].date = year + "-" + month + "-" + day +
+    "T" + hour + ":" + minute + ":" + second;
+}
+
+
+  
+if (tasks[i].done === undefined) {
+  tasks[i].done = false;
+}
+      
+}    
+    
+localStorage.setItem("tasks", JSON.stringify(tasks));    
+        
+let currentFilter = "all";    
+        
+ let addBtn = document.getElementById("addBtn"); 
+
+let searchInput = document.getElementById("searchInput");    
+    
+let priorityInput = document.getElementById("priorityInput");    
+let sortInput = document.getElementById("sortInput");    
+sortInput.addEventListener("change", function() {    
+  showTasks(currentFilter);    
+});    
+        
+searchInput.addEventListener("input", function() {      
+      
+  showTasks(currentFilter);      
+});     
+        
+        
+let clearBtn = document.getElementById("clearBtn");      
+let allBtn = document.getElementById("allBtn");      
+let completedBtn = document.getElementById("completedBtn");     
+        
+completedBtn.onclick = function() {    
+  currentFilter = "completed"; 
+  searchInput.value = "";
+  showTasks(currentFilter);    
+};    
+        
+let remainingBtn = document.getElementById("remainingBtn");    
+        
+remainingBtn.onclick = function() {    
+  currentFilter = "remaining"; 
+  searchInput.value = "";
+  showTasks(currentFilter);    
+};      
+        
+        
+allBtn.onclick = function() {    
+  currentFilter = "all";
+  searchInput.value = "";
+  showTasks(currentFilter);    
+};    
+    
+        
+clearBtn.onclick = function() {      
+let answer = confirm("Are you sure?");      
+if (answer === false) {      
+  return;      
+}      
+  tasks = [];      
+localStorage.setItem("tasks", JSON.stringify(tasks));     
+      
+      
+showTasks(currentFilter);    
+      
+};   
+    
+function showTasks(filter=currentFilter) {     
+    
+tasks.sort(function(a, b) {    
+  let order = {    
+    High: 1,    
+    Medium: 2,    
+    Low: 3    
+  };    
+    
+  return order[a.priority] - order[b.priority];    
+});
+
+
+let sortType = sortInput.value;
+
+if (sortType === "newest") {
+  tasks.sort(function(a, b) {
+    return new Date(b.date) - new Date(a.date);
+  });
+}
+
+if (sortType === "oldest") {
+  tasks.sort(function(a, b) {
+    return new Date(a.date) - new Date(b.date);
+  });
+}
+
+  
+      
+  let searchText = searchInput.value.toLowerCase();      
+  document.getElementById("result").innerHTML = "";      
+ let completed = 0;       
+  for (let i = 0; i < tasks.length; i++) {        
+if (tasks[i].done === true) {      
+  completed++;      
+}      
+    
+let task = tasks[i].text;    
+let priority = tasks[i].priority;    
+let date = tasks[i].date;    
+        
+if (filter === "completed" && tasks[i].done === false) {      
+  continue;      
+}    
+if (filter === "remaining" && tasks[i].done === true) {    
+  continue;    
+}    
+        
+let match = task.toLowerCase().includes(searchText.trim());     
+        
+if (!match) {      
+  continue;      
+}      
+        
+let taskBox = document.createElement("div");    
+taskBox.className = "taskBox";    
+    
+let serial = document.getElementById("result").children.length + 1;
+
+    
+let taskText = document.createElement("span");    
+    
+taskText.textContent = serial + ". " + task + " [" + priority + "]";    
+    
+let dateText = document.createElement("span");    
+dateText.textContent = date ? "📅 " + new Date(date).toLocaleString() : ""; 
+
+    
+dateText.style.fontSize = "12px";    
+dateText.style.color = "gray";    
+    
+let taskInfo = document.createElement("div");    
+    
+taskInfo.appendChild(taskText);    
+taskInfo.appendChild(dateText);    
+    
+taskBox.appendChild(taskInfo);    
+    
+        
+   if (priority === "High") {    
+  taskBox.style.fontWeight = "bold";    
+taskBox.style.color = "red";    
+taskBox.style.backgroundColor = "#ffcccc";    
+      
+}else if (priority === "Medium") {    
+  taskBox.style.fontStyle = "normal";    
+    
+taskBox.style.color = "black";    
+taskBox.style.backgroundColor = "#ffe0b2";    
+      
+} else {    
+  taskBox.style.fontStyle = "italic";    
+taskBox.style.color = "green";    
+taskBox.style.backgroundColor = "#ccffcc";    
+      
+}    
+let currentTask = tasks[i];    
+      
+let editBtn = document.createElement("button");      
+editBtn.textContent = "Edit";      
+editBtn.style.marginLeft = "10px";      
+      
+editBtn.onclick = function() {      
+let newTask = prompt("Edit Task:", currentTask.text);      
+      
+  if (newTask === null) {      
+    return;      
+  }    
+    
+let newPriority = prompt("Priority (High/Medium/Low):", currentTask.priority);    
+    
+if (    
+  newPriority !== "High" &&    
+  newPriority !== "Medium" &&    
+  newPriority !== "Low"    
+) {    
+  alert("Please enter High, Medium or Low");    
+  return;    
+}    
+      
+  newTask = newTask.trim();      
+      
+if (newTask === "") {    
+  alert("Task cannot be empty");    
+  return;    
+}    
+      
+currentTask.text = newTask;    
+currentTask.priority = newPriority;    
+      
+  localStorage.setItem("tasks", JSON.stringify(tasks));      
+      
+  document.getElementById("result").innerHTML = "";      
+  showTasks(currentFilter);      
+};      
+      
+          
+let doneBtn = document.createElement("button");      
+         
+doneBtn.textContent = "Done";      
+if (tasks[i].done === true) {      
+  doneBtn.textContent = "Undo";      
+}      
+doneBtn.style.marginLeft = "10px";      
+doneBtn.onclick = function() {      
+      
+if (tasks[i].done === true) {      
+  tasks[i].done = false;      
+} else {      
+  tasks[i].done = true;      
+}      
+        
+if (tasks[i].done === true) {      
+  taskText.style.textDecoration = "line-through";      
+} else {      
+  taskText.style.textDecoration = "none";      
+}      
+ if (tasks[i].done === true) {      
+  doneBtn.textContent = "Undo";      
+} else {      
+  doneBtn.textContent = "Done";      
+}       
+        
+localStorage.setItem("tasks", JSON.stringify(tasks));      
+      
+document.getElementById("result").innerHTML = "";      
+showTasks(currentFilter);      
+      
+};      
+taskBox.appendChild(doneBtn);      
+taskBox.appendChild(editBtn);      
+let deleteBtn = document.createElement("button");        
+deleteBtn.textContent ="Delete";        
+deleteBtn.style.marginLeft = "10px";       
+deleteBtn.onclick = function() {      
+      
+  tasks.splice(i, 1);      
+      
+  localStorage.setItem("tasks", JSON.stringify(tasks));      
+      
+document.getElementById("result").innerHTML = "";      
+showTasks(currentFilter);      
+      
+};     
+    
+if (tasks[i].done === true) {    
+  taskText.style.textDecoration = "line-through";    
+}    
+    
+    
+        
+taskBox.appendChild(deleteBtn);       
+      
+      
+document.getElementById("result").appendChild(taskBox);       
+        
+  }        
+let remaining = tasks.length - completed;      
+      
+document.getElementById("count").textContent =      
+  "Total: " + tasks.length + " | Completed: " + completed + " | Remaining: " + remaining;     
+if (completed === 0) {    
+  document.getElementById("count").textContent += " — No task completed";    
+} else if (completed === 1) {    
+  document.getElementById("count").textContent += " 🎉 Great!";    
+} else {    
+  document.getElementById("count").textContent += " 🔥 Excellent!";    
+}    
+}    
+        
+  showTasks();      
+    addBtn.onclick = function() {        
+        
+ let task = document.getElementById("taskInput").value.trim();    
+    
+let priority = priorityInput.value;    
+          
+if (task === "") {      
+  return;      
+}      
+            
+tasks.push({    
+  text: task,    
+  done: false,    
+  priority: priority,    
+      
+  date: new Date().toISOString()    
+});    
+          
+localStorage.setItem("tasks", JSON.stringify(tasks));      
+        
+      
+ document.getElementById("result").innerHTML = "";      
+      
+showTasks(currentFilter);        
+          
+      document.getElementById("taskInput").value = "";        
+        
+    };        
+        
+</script> 
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
+</script>
+  
+</body>        
+</html>      
